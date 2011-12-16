@@ -27,7 +27,7 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-const MAX_LENGTH_DESCRIPTION = 1000;
+define("MAX_LENGTH_DESCRIPTION", 1000);
 
 /**
  * Adds the MoShare embed code to each post/page
@@ -53,11 +53,14 @@ function moshare_add_widget($content) {
     }
 
     $logo = get_option('moshare_icon');
+    if ($logo == '') {
+        set_option('moshare_icon', 'moshare-button');
+    }
     $cid  = get_option('moshare_cid');
 
-    $html = "<a href='http://www.mogreet.com/moshare/it/' class='moshare-button-$logo'"
+    $html = "<a href='http://www.mogreet.com/moshare/it/' class='$logo'"
         . " data-description='$description' data-url='$url' data-type='article'"
-        . " data-title='$title'";
+        . " data-location='$url' data-title='$title'";
 
     if ($first_img != '') {
         $html .= " data-thumbnail='$first_img'";
@@ -78,8 +81,8 @@ function moshare_add_widget($content) {
 function moshare_options_form() {
     $icon    = get_option('moshare_icon');
     $cid     = get_option('moshare_cid');
-    $classic = ($icon == "1") ? "checked" : "";
-    $mini    = ($icon == "mini") ? "checked" : "";
+    $classic = ($icon == "moshare-button") ? "checked" : "";
+    $mini    = ($icon == "moshare-button-mini") ? "checked" : "";
 
     echo '
         <div class="wrap">
@@ -88,8 +91,8 @@ function moshare_options_form() {
         <form id="ak_moshare" name="ak_moshare" action="' . get_bloginfo('wpurl') .'/wp-admin/index.php">
           <fieldset class="options">
              <h3>Pick up your style</h3>
-             <input type="radio" name="moshare_icon" value="1" '. $classic .' /> <img src="http://www.mogreet.com/moshare/embed/moshare.png"/>
-             <input type="radio" name="moshare_icon" value="mini"'. $mini .' /> <img src="http://www.mogreet.com/moshare/embed/moshare_chicklet.png"/>
+             <input type="radio" name="moshare_icon" value="moshare-button" '. $classic .' /> <img src="http://www.mogreet.com/moshare/embed/moshare.png"/>
+             <input type="radio" name="moshare_icon" value="moshare-button-mini"'. $mini .' /> <img src="http://www.mogreet.com/moshare/embed/moshare_chicklet.png"/>
              <h3>Set up your campaign ID (not required)</h3>
              <input type="text" name="moshare_cid" value="'. $cid .'" />
           </fieldset>
