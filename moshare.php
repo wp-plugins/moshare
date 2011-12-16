@@ -54,7 +54,7 @@ function moshare_add_widget($content) {
 
     $logo = get_option('moshare_icon');
     if ($logo == '') {
-        set_option('moshare_icon', 'moshare-button');
+        update_option('moshare_icon', 'moshare-button');
     }
     $cid  = get_option('moshare_cid');
 
