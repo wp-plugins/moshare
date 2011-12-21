@@ -29,10 +29,9 @@ Please visit our website: http://corp.mogreet.com
 
 == Screenshots ==
 
-1. "moshare_in_action" shows how the MoShare button is integrated automatically in each post.
+1. "screenshot-1.png" shows how the MoShare button is integrated automatically in each post.
     The visible popup form is opened after having click on the button.
-
-2. "moshare_options" shows the options available in the MoShare administration page.
+2. "screenshot-2.png" shows the options available in the MoShare administration page.
 
 
 == Changelog ==
