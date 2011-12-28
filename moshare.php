@@ -9,7 +9,7 @@
     Contributors :
         Jonathan Perichon <jonathan.perichon@gmail.com>
     License: GPL2
-*/
+ */
 
 /*  Copyright 2011  Mogreet
 
@@ -25,7 +25,7 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 define("MAX_LENGTH_DESCRIPTION", 1000);
 
@@ -48,8 +48,13 @@ function moshare_add_widget($content) {
     $description = preg_replace('/\\\"/', '&quot;', $description);
 
     $first_img   = '';
-    if (preg_match('/<img.+src=[\'"]([^\'"]+)[\'"].*>/i', $content, $matches) > 0) {
-      $first_img   = $matches[1];
+    $doc = DOMDocument::loadHTML($content);
+    $images = $doc->getElementsByTagName("img");
+    foreach ($images as $image) {
+        if ($image->getAttribute('class') != "wp-smiley") {
+            $first_img = $image->getAttribute('src');
+            break;
+        }
     }
 
     $logo = get_option('moshare_icon');
@@ -59,7 +64,7 @@ function moshare_add_widget($content) {
     $cid  = get_option('moshare_cid');
 
     $html = "<a href='http://www.mogreet.com/moshare/it/' class='$logo'"
-        . " data-description='$description' data-url='$url' data-type='article'"
+        . " data-description='$description' data-type='article'"
         . " data-location='$url' data-title='$title'";
 
     if ($first_img != '') {
@@ -89,27 +94,27 @@ function moshare_options_form() {
         <h2>'.__('MoShare Options', 'moshare').'</h2>
         <div style="padding:10px;border:1px solid #aaa;background-color:#9fde33;text-align:center;display:none;" id="moshare_updated">Your options were successfully updated</div>
         <form id="ak_moshare" name="ak_moshare" action="' . get_bloginfo('wpurl') .'/wp-admin/index.php">
-          <fieldset class="options">
-             <h3>Pick up your style</h3>
-             <input type="radio" name="moshare_icon" value="moshare-button" '. $classic .' /> <img src="http://www.mogreet.com/moshare/embed/moshare.png"/>
-             <input type="radio" name="moshare_icon" value="moshare-button-mini"'. $mini .' /> <img src="http://www.mogreet.com/moshare/embed/moshare_chicklet.png"/>
-             <h3>Set up your campaign ID (not required)</h3>
-             <input type="text" name="moshare_cid" value="'. $cid .'" />
-          </fieldset>
-          <br/>
-             <input type="submit" name="submit_button" value="'.__('Update MoShare Options', 'moshare').'" />
-             <input type="hidden" name="moshare_action" value="moshare_update_settings" />
-		 </form></div>';
+        <fieldset class="options">
+        <h3>Pick up your style</h3>
+        <input type="radio" name="moshare_icon" value="moshare-button" '. $classic .' /> <img src="http://www.mogreet.com/moshare/embed/moshare.png"/>
+        <input type="radio" name="moshare_icon" value="moshare-button-mini"'. $mini .' /> <img src="http://www.mogreet.com/moshare/embed/moshare_chicklet.png"/>
+        <h3>Set up your campaign ID (not required)</h3>
+        <input type="text" name="moshare_cid" value="'. $cid .'" />
+        </fieldset>
+        <br/>
+        <input type="submit" name="submit_button" value="'.__('Update MoShare Options', 'moshare').'" />
+        <input type="hidden" name="moshare_action" value="moshare_update_settings" />
+        </form></div>';
 }
 
 function moshare_menu_items() {
-		add_options_page(
-            __('MoShare Options', 'moshare')
-            , __('MoShare', 'moshare')
-            , manage_options
-            , basename(__FILE__)
-            , 'moshare_options_form'
-		);
+    add_options_page(
+        __('MoShare Options', 'moshare')
+        , __('MoShare', 'moshare')
+        , manage_options
+        , basename(__FILE__)
+        , 'moshare_options_form'
+    );
 } 
 
 /**
@@ -132,7 +137,7 @@ function moshare_request_handler() {
  * Includes the MoShare JavaScript once per page
  */
 function moshare_scripts() {
-     wp_enqueue_script("moshare", "http://www.mogreet.com/moshare/embed/moshare.js", array(), "1.0", true);
+    wp_enqueue_script("moshare", "http://www.mogreet.com/moshare/embed/moshare.js", array(), "1.0", true);
 }
 
 add_action('admin_menu', 'moshare_menu_items');
