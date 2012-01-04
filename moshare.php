@@ -30,6 +30,33 @@
 define("MAX_LENGTH_DESCRIPTION", 1000);
 
 /**
+ * Sanitizes the description
+ * - Strips html tags
+ * - Strips wordpress shortcodes
+ * - Trims
+ * - Shortens the description to the max length
+ */
+function moshare_sanitize_description($str) {
+    $search = array('@<script[^>]*?>.*?</script>@si',
+        '@<style[^>]*?>.*?</style>@siU', 
+        '@<![\s\S]*?--[ \t\n\r]*>@'
+    ); 
+    $str = preg_replace($search, "", $str);
+    $str = preg_replace("/&nbsp;/", "", $str);
+    $str = preg_replace("/\"/", "&quot;", $str);
+    $str = strip_shortcodes($str);
+    $str = strip_tags($str);
+    $str = trim($str);
+
+    if (strlen($str) > MAX_LENGTH_DESCRIPTION) {
+        $str = substr($str, 0, MAX_LENGTH_DESCRIPTION);
+        $str .= " ...";
+    }
+
+    return $str;
+}
+
+/**
  * Adds the MoShare embed code to each post/page
  */
 function moshare_add_widget($content) {
@@ -38,22 +65,27 @@ function moshare_add_widget($content) {
     $url         = get_permalink($post->ID);
     $title       = get_the_title();
 
-    $description = strip_tags($content);
-    $description = trim($description);
-
-    if (strlen($description) > MAX_LENGTH_DESCRIPTION) {
-        $description = substr($description, 0, MAX_LENGTH_DESCRIPTION);
-        $description .= " ...";
+    $message = "";
+    if (has_excerpt($post->ID)) {
+        $message = moshare_sanitize_description($post->post_excerpt);
+    } else {
+        $message = moshare_sanitize_description($post->post_content);
     }
-    $description = preg_replace('/\\\"/', '&quot;', $description);
 
-    $first_img   = '';
-    $doc = DOMDocument::loadHTML($content);
-    $images = $doc->getElementsByTagName("img");
-    foreach ($images as $image) {
-        if ($image->getAttribute('class') != "wp-smiley") {
-            $first_img = $image->getAttribute('src');
-            break;
+
+    $image = "";
+    if (has_post_thumbnail($post->ID)) {
+        $img = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'single-post-thumbnail');
+        $image = $img[0];
+
+    } else if ($content != "") {
+        $doc = DOMDocument::loadHTML($post->post_content);
+        $images = $doc->getElementsByTagName("img");
+        foreach ($images as $image) {
+            if ($image->getAttribute('class') != "wp-smiley") {
+                $image = $image->getAttribute('src');
+                break;
+            }
         }
     }
 
@@ -63,19 +95,18 @@ function moshare_add_widget($content) {
     }
     $cid  = get_option('moshare_cid');
 
-    $html = "<a href='http://www.mogreet.com/moshare/it/' class='$logo'"
-        . " data-description='$description' data-type='article'"
-        . " data-location='$url' data-title='$title'";
-
-    if ($first_img != '') {
-        $html .= " data-thumbnail='$first_img'";
+    $html = '<div><a href="http://www.mogreet.com/moshare/it/" class="'.$logo.'"';
+    $html .= ' data-message="'.$message.'" data-type="article"';
+    $html .= ' data-location="'.$url.'" data-title="'.$title.'"';
+    if ($image != '') {
+        $html .= ' data-thumbnail="'.$image.'"';
     }
     if ($cid != '') {
-        $html .= " data-cid='$cid'";
+        $html .= ' data-cid="'.$cid.'"';
     }
     $html .= '></a>';
-
-    echo $content . $html;
+    $content = $content . $html;
+    return $content;
 }
 
 /*
@@ -107,6 +138,9 @@ function moshare_options_form() {
         </form></div>';
 }
 
+/**
+ * Adds MoShare to the Menu
+ */
 function moshare_menu_items() {
     add_options_page(
         __('MoShare Options', 'moshare')
@@ -146,3 +180,4 @@ add_filter('the_content', 'moshare_add_widget');
 add_action('wp_enqueue_scripts', 'moshare_scripts');
 
 ?>
+
