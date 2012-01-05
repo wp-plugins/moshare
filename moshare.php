@@ -43,11 +43,12 @@ function moshare_sanitize_description($str) {
         '@<![\s\S]*?--[ \t\n\r]*>@'
     ); 
     $str = preg_replace($search, "", $str); // removing script, style and comments
-    // $str = preg_replace("/&nbsp;/", "", $str); TODO check if it's needed'
     $str = preg_replace("/\"/", "&quot;", $str); // protecting double quotes
-    $str = wpautop($str); // removes multiples break lines
 
-    if (seems_utf8($str)) { // removes multiples spaces
+    // removing extra-spaces and extra-lines
+    $str = wpautop($str); 
+    $str = preg_replace("/&nbsp;/", "", $str);
+    if (seems_utf8($str)) { 
         $str = preg_replace('/[\p{Z}\s]{2,}/u', ' ', $str);
     } else {
         $str = preg_replace('/\s\s+/', ' ', $str);
