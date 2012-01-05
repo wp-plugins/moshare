@@ -210,4 +210,3 @@ add_filter('the_content', 'moshare_add_widget');
 add_action('wp_enqueue_scripts', 'moshare_scripts');
 
 ?>
-
