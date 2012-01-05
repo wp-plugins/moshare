@@ -4,7 +4,7 @@ Contributors: jperichon, trizzi
 Tags: moshare, share, sharing, mogreet, mobile, sms, mms, messaging, social
 Requires at least: 1.5
 Tested up to: 3.3
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 
 The moShare plugin enables users to share your content via MMS using the Mogreet Messaging Platform
 
@@ -37,11 +37,14 @@ Please visit our website: http://corp.mogreet.com
 
 == Changelog ==
 
-= 1.1.1 =
-Bug fixed: "headers already sent" message, closing </div> for the moShare button
+= 1.1.2 =
+Bugs fixed: themes not supporting "has_thumbnail"
 
-= 1.1 =
-Bugs fixed: duplicated posts, issue with double quotes, bad interaction with other plugins
+Improvements: remove multiple spaces and multiples break lines
+
+= 1.1.1 =
+Bugs fixed: "headers already sent" message, closing </div> for the moShare button,
+duplicated posts, issue with double quotes, bad interaction with other plugins
 
 Improvements: uses the featured image as thumbnail if set, uses the excerpt if set
 

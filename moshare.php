@@ -3,7 +3,7 @@
     Plugin Name: moShare 
     Plugin URI: http://corp.mogreet.com 
     Description: Let users share your content via MMS using the Mogreet Messaging Platform
-    Version: 1.1.1
+    Version: 1.1.2
     Author: Mogreet
     Author URI: http://corp.mogreet.com
     Contributors :
@@ -37,13 +37,22 @@ define("MAX_LENGTH_DESCRIPTION", 1000);
  * - Shortens the description to the max length
  */
 function moshare_sanitize_description($str) {
+
     $search = array('@<script[^>]*?>.*?</script>@si',
         '@<style[^>]*?>.*?</style>@siU', 
         '@<![\s\S]*?--[ \t\n\r]*>@'
     ); 
-    $str = preg_replace($search, "", $str);
-    $str = preg_replace("/&nbsp;/", "", $str);
-    $str = preg_replace("/\"/", "&quot;", $str);
+    $str = preg_replace($search, "", $str); // removing script, style and comments
+    // $str = preg_replace("/&nbsp;/", "", $str); TODO check if it's needed'
+    $str = preg_replace("/\"/", "&quot;", $str); // protecting double quotes
+    $str = wpautop($str); // removes multiples break lines
+
+    if (seems_utf8($str)) { // removes multiples spaces
+        $str = preg_replace('/[\p{Z}\s]{2,}/u', ' ', $str);
+    } else {
+        $str = preg_replace('/\s\s+/', ' ', $str);
+    }
+
     $str = strip_shortcodes($str);
     $str = strip_tags($str);
     $str = trim($str);
@@ -66,7 +75,7 @@ function moshare_add_widget($content) {
     $title       = get_the_title();
 
     $message = "";
-    if (has_excerpt($post->ID)) {
+    if (function_exists("has_excerpt") && has_excerpt($post->ID)) {
         $message = moshare_sanitize_description($post->post_excerpt);
     } else {
         $message = moshare_sanitize_description($post->post_content);
@@ -74,11 +83,12 @@ function moshare_add_widget($content) {
 
 
     $image = "";
-    if (has_post_thumbnail($post->ID)) {
+    if (current_theme_supports("post-thumbnails") && has_post_thumbnail($post->ID)) {
         $img = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'single-post-thumbnail');
         $image = $img[0];
 
-    } else if ($content != "") {
+    } else if ($post->post_content != "") {
+        libxml_use_internal_errors(true); // disable libxml warnings
         $doc = DOMDocument::loadHTML($post->post_content);
         $images = $doc->getElementsByTagName("img");
         foreach ($images as $image) {
