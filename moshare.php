@@ -1,9 +1,9 @@
 <?php
 /*
-    Plugin Name: MoShare 
+    Plugin Name: moShare 
     Plugin URI: http://corp.mogreet.com 
     Description: Let users share your content via MMS using the Mogreet Messaging Platform
-    Version: 1.0
+    Version: 1.1.2
     Author: Mogreet
     Author URI: http://corp.mogreet.com
     Contributors :
@@ -37,13 +37,22 @@ define("MAX_LENGTH_DESCRIPTION", 1000);
  * - Shortens the description to the max length
  */
 function moshare_sanitize_description($str) {
+
     $search = array('@<script[^>]*?>.*?</script>@si',
         '@<style[^>]*?>.*?</style>@siU', 
         '@<![\s\S]*?--[ \t\n\r]*>@'
     ); 
-    $str = preg_replace($search, "", $str);
-    $str = preg_replace("/&nbsp;/", "", $str);
-    $str = preg_replace("/\"/", "&quot;", $str);
+    $str = preg_replace($search, "", $str); // removing script, style and comments
+    // $str = preg_replace("/&nbsp;/", "", $str); TODO check if it's needed'
+    $str = preg_replace("/\"/", "&quot;", $str); // protecting double quotes
+    $str = wpautop($str); // removes multiples break lines
+
+    if (seems_utf8($str)) { // removes multiples spaces
+        $str = preg_replace('/[\p{Z}\s]{2,}/u', ' ', $str);
+    } else {
+        $str = preg_replace('/\s\s+/', ' ', $str);
+    }
+
     $str = strip_shortcodes($str);
     $str = strip_tags($str);
     $str = trim($str);
@@ -57,7 +66,7 @@ function moshare_sanitize_description($str) {
 }
 
 /**
- * Adds the MoShare embed code to each post/page
+ * Adds the moShare embed code to each post/page
  */
 function moshare_add_widget($content) {
     global $post;
@@ -66,7 +75,7 @@ function moshare_add_widget($content) {
     $title       = get_the_title();
 
     $message = "";
-    if (has_excerpt($post->ID)) {
+    if (function_exists("has_excerpt") && has_excerpt($post->ID)) {
         $message = moshare_sanitize_description($post->post_excerpt);
     } else {
         $message = moshare_sanitize_description($post->post_content);
@@ -74,11 +83,12 @@ function moshare_add_widget($content) {
 
 
     $image = "";
-    if (has_post_thumbnail($post->ID)) {
+    if (current_theme_supports("post-thumbnails") && has_post_thumbnail($post->ID)) {
         $img = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'single-post-thumbnail');
         $image = $img[0];
 
-    } else if ($content != "") {
+    } else if ($post->post_content != "") {
+        libxml_use_internal_errors(true); // disable libxml warnings
         $doc = DOMDocument::loadHTML($post->post_content);
         $images = $doc->getElementsByTagName("img");
         foreach ($images as $image) {
@@ -104,13 +114,13 @@ function moshare_add_widget($content) {
     if ($cid != '') {
         $html .= ' data-cid="'.$cid.'"';
     }
-    $html .= '></a>';
+    $html .= '></a></div>';
     $content = $content . $html;
     return $content;
 }
 
 /*
- * MoShare options form
+ * moShare options form
  * - customize the widget
  * - set up the campaign ID
  */
@@ -122,7 +132,7 @@ function moshare_options_form() {
 
     echo '
         <div class="wrap">
-        <h2>'.__('MoShare Options', 'moshare').'</h2>
+        <h2>'.__('moShare Options', 'moshare').'</h2>
         <div style="padding:10px;border:1px solid #aaa;background-color:#9fde33;text-align:center;display:none;" id="moshare_updated">Your options were successfully updated</div>
         <form id="ak_moshare" name="ak_moshare" action="' . get_bloginfo('wpurl') .'/wp-admin/index.php">
         <fieldset class="options">
@@ -133,18 +143,18 @@ function moshare_options_form() {
         <input type="text" name="moshare_cid" value="'. $cid .'" />
         </fieldset>
         <br/>
-        <input type="submit" name="submit_button" value="'.__('Update MoShare Options', 'moshare').'" />
+        <input type="submit" name="submit_button" value="'.__('Update moShare Options', 'moshare').'" />
         <input type="hidden" name="moshare_action" value="moshare_update_settings" />
         </form></div>';
 }
 
 /**
- * Adds MoShare to the Menu
+ * Adds moShare to the Menu
  */
 function moshare_menu_items() {
     add_options_page(
-        __('MoShare Options', 'moshare')
-        , __('MoShare', 'moshare')
+        __('moShare Options', 'moshare')
+        , __('moShare', 'moshare')
         , manage_options
         , basename(__FILE__)
         , 'moshare_options_form'
@@ -152,7 +162,7 @@ function moshare_menu_items() {
 } 
 
 /**
- * Updates MoShare options
+ * Updates moShare options
  */
 function moshare_request_handler() {
     $action = $_REQUEST['moshare_action'];
@@ -168,7 +178,7 @@ function moshare_request_handler() {
 }
 
 /**
- * Includes the MoShare JavaScript once per page
+ * Includes the moShare JavaScript once per page
  */
 function moshare_scripts() {
     wp_enqueue_script("moshare", "http://www.mogreet.com/moshare/embed/moshare.js", array(), "1.0", true);
@@ -180,4 +190,3 @@ add_filter('the_content', 'moshare_add_widget');
 add_action('wp_enqueue_scripts', 'moshare_scripts');
 
 ?>
-
