@@ -3,7 +3,7 @@
     Plugin Name: moShare 
     Plugin URI: http://corp.mogreet.com 
     Description: Let users share your content via MMS using the Mogreet Messaging Platform
-    Version: 1.1.2
+    Version: 1.1.3
     Author: Mogreet
     Author URI: http://corp.mogreet.com
     Contributors :
@@ -105,7 +105,12 @@ function moshare_add_widget($content) {
     }
     $cid  = get_option('moshare_cid');
 
-    $html = '<div><a href="http://www.mogreet.com/moshare/it/" class="'.$logo.'"';
+    $location = get_option('moshare_location');
+    if ($location == '') {
+        update_option('moshare_location', 'bottom');
+    }
+
+    $html = '<div style="display: inline; white-space: nowrap;"><span style="margin-right: 30px;"><a href="http://www.mogreet.com/moshare/it/" class="'.$logo.'"';
     $html .= ' data-message="'.$message.'" data-type="article"';
     $html .= ' data-location="'.$url.'" data-title="'.$title.'"';
     if ($image != '') {
@@ -114,8 +119,15 @@ function moshare_add_widget($content) {
     if ($cid != '') {
         $html .= ' data-cid="'.$cid.'"';
     }
-    $html .= '></a></div>';
-    $content = $content . $html;
+    $html .= '></a></span>';
+
+    $html .= '</div>';
+
+    if ($location == "top") {
+        $content = $html . $content;
+    } else {
+        $content = $content . $html;
+    }
     return $content;
 }
 
@@ -125,10 +137,13 @@ function moshare_add_widget($content) {
  * - set up the campaign ID
  */
 function moshare_options_form() {
-    $icon    = get_option('moshare_icon');
-    $cid     = get_option('moshare_cid');
-    $classic = ($icon == "moshare-button") ? "checked" : "";
-    $mini    = ($icon == "moshare-button-mini") ? "checked" : "";
+    $icon     = get_option('moshare_icon');
+    $cid      = get_option('moshare_cid');
+    $location = get_option('moshare_location');
+    $classic  = ($icon == "moshare-button") ? "checked" : "";
+    $mini     = ($icon == "moshare-button-mini") ? "checked" : "";
+    $top      = ($location == "top") ? "checked" : "";
+    $bottom  = ($location == "bottom") ? "checked" : "";
 
     echo '
         <div class="wrap">
@@ -139,6 +154,9 @@ function moshare_options_form() {
         <h3>Pick up your style</h3>
         <input type="radio" name="moshare_icon" value="moshare-button" '. $classic .' /> <img src="http://www.mogreet.com/moshare/embed/moshare.png"/>
         <input type="radio" name="moshare_icon" value="moshare-button-mini"'. $mini .' /> <img src="http://www.mogreet.com/moshare/embed/moshare_chicklet.png"/>
+        <h3>Choose the location</h3>
+        <input type="radio" name="moshare_location" value="top" '. $top .' /> Top of the post
+        <input type="radio" name="moshare_location" value="bottom"'. $bottom .' /> Bottom of the post
         <h3>Set up your campaign ID (not required)</h3>
         <input type="text" name="moshare_cid" value="'. $cid .'" />
         </fieldset>
@@ -168,10 +186,12 @@ function moshare_request_handler() {
     $action = $_REQUEST['moshare_action'];
     $icon   = $_REQUEST['moshare_icon'];
     $cid    = $_REQUEST['moshare_cid'];
+    $location = $_REQUEST['moshare_location'];
 
-    if (isset($action, $icon, $cid) && $action == "moshare_update_settings") {
+    if (isset($action, $icon, $cid, $location) && $action == "moshare_update_settings") {
         update_option('moshare_icon', $icon);
         update_option('moshare_cid', $cid);
+        update_option('moshare_location', $location);
         header('Location: '.get_bloginfo('wpurl').'/wp-admin/options-general.php?page=moshare.php&updated=true');
         die();
     }
@@ -190,3 +210,4 @@ add_filter('the_content', 'moshare_add_widget');
 add_action('wp_enqueue_scripts', 'moshare_scripts');
 
 ?>
+
