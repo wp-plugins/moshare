@@ -3,7 +3,7 @@
     Plugin Name: moShare 
     Plugin URI: http://corp.mogreet.com 
     Description: Let users share your content via MMS using the Mogreet Messaging Platform
-    Version: 1.2.0
+    Version: 1.2.1
     Author: Mogreet
     Author URI: http://corp.mogreet.com
     Contributors :
@@ -263,10 +263,15 @@ class Moshare_Button extends Moshare_Widget {
             libxml_use_internal_errors(true); // disable libxml warnings
             $doc = DOMDocument::loadHTML($post->post_content);
             $images = $doc->getElementsByTagName("img");
+
+            $max_size = 0;
             foreach ($images as $image) {
                 if ($image->getAttribute('class') != "wp-smiley") {
-                    $this->image = $image->getAttribute('src');
-                    break;
+                    $size = $image->getAttribute('width') * $image->getAttribute('height');
+                    if ($size > $max_size || $max_size == 0) {
+                        $max_size = $size;
+                        $this->image = $image->getAttribute('src');
+                    }
                 }
             }
         }
