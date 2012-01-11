@@ -34,16 +34,17 @@ Please visit our website: http://corp.mogreet.com
     The visible popup form is opened after having click on the button.
 2. "screenshot-2.png" shows the options available in the moShare administration page.
 
+
 == Changelog ==
 
 = 1.2.2 =
 
-* Fix the character issue with curly apostrophe
+* Fixes the character issue with curly apostrophe
 * Plugin structure changed to use static functions
 
 = 1.2.1 =
 
-* Fix low-resolution thumbnail
+* Fixes low-resolution thumbnail
 
 = 1.2.0 =
 
@@ -53,16 +54,16 @@ Please visit our website: http://corp.mogreet.com
 
 = 1.1.2 =
 
-* Fix themes not supporting the function "has_thumbnail"
+* Fixes themes not supporting the function "has_thumbnail"
 * Removes multiple spaces and multiples break lines
 
 = 1.1.1 =
 
-* Fix "headers already sent" message
-* Fix closing </div> for the moShare button
-* Fix duplicated posts
-* Fix the issue with double quotes
-* Fix the bad interaction with other plugins 
+* Fixes "headers already sent" message
+* Fixes closing </div> for the moShare button
+* Fixes duplicated posts
+* Fixes the issue with double quotes
+* Fixes the bad interaction with other plugins 
 * Uses the featured image as thumbnail if set
 * Uses the excerpt if set
 
