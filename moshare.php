@@ -41,6 +41,7 @@ if (!class_exists('Moshare') &&
 
         public static function init() {
             register_activation_hook(__FILE__, array(__CLASS__, 'set_options'));
+            register_deactivation_hook(__FILE__, array(__CLASS__, 'unset_options'));
             add_action('admin_menu', array(__CLASS__, 'menu_items'));
             add_action('init', array(__CLASS__, 'request_handler'), 9999);
             add_filter('the_content', array(__CLASS__, 'add_widget'));
