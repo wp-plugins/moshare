@@ -37,33 +37,42 @@ Please visit our website: http://corp.mogreet.com
 
 == Changelog ==
 
+= 1.2.2 =
+
+Bug fixed:
+* Character issue with curly apostrophe
+
+Improvement:
+* Plugin structure (static functions)
+
 = 1.2.1 =
-Improvement of the thumbnail used if there is not featured image.
+Bug fixed:
+* Low-resolution thumbnail
 
 = 1.2.0 =
 Improvements: 
-Adds Facebook, Twitter, Google+ and LinkedIn share buttons.
-Offers the possibility to choose to place the sharing widget at the beginning or at the end of the post.
-The plugin uses now classes.
+* Adds Facebook, Twitter, Google+ and LinkedIn share buttons.
+* Offers the possibility to choose to place the sharing widget at the beginning or at the end of the post.
+* Plugin structure (classes)
 
 = 1.1.2 =
-Bugs fixed: 
-Themes not supporting the function "has_thumbnail"
+Bug fixed: 
+* Themes not supporting the function "has_thumbnail"
 
-Improvements: 
-Removes multiple spaces and multiples break lines
+Improvement: 
+* Removes multiple spaces and multiples break lines
 
 = 1.1.1 =
 Bugs fixed:
-"headers already sent" message
-Closing </div> for the moShare button
-Duplicated posts
-Issue with double quotes
-Bad interaction with other plugins
+* "headers already sent" message
+* Closing </div> for the moShare button
+* Duplicated posts
+* Issue with double quotes
+* Bad interaction with other plugins
 
 Improvements: 
-Uses the featured image as thumbnail if set. 
-Uses the excerpt if set.
+* Uses the featured image as thumbnail if set. 
+* Uses the excerpt if set.
 
 = 1.0 =
 Initial release 

@@ -3,7 +3,7 @@
     Plugin Name: moShare 
     Plugin URI: http://corp.mogreet.com 
     Description: Let users share your content via MMS using the Mogreet Messaging Platform
-    Version: 1.2.1
+    Version: 1.2.2
     Author: Mogreet
     Author URI: http://corp.mogreet.com
     Contributors :
@@ -28,18 +28,26 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-if (!class_exists('Moshare')) {
+
+if (!class_exists('Moshare') && 
+    !class_exists('Moshare_Widget') && 
+    !class_exists('Moshare_Button') && 
+    !class_exists('Moshare_Facebook_Widget') && 
+    !class_exists('Moshare_Linkedin_Widget') && 
+    !class_exists('Moshare_Twitter_Widget') && 
+    !class_exists('Moshare_Google_Plus_Widget')){
+
     class Moshare {
-        public function __construct() {
-            register_activation_hook(__FILE__, array(&$this, 'set_options'));
-            register_deactivation_hook(__FILE__, array(&$this, 'unset_options'));
-            add_action('admin_menu', array(&$this, 'menu_items'));
-            add_action('init', array(&$this, 'request_handler'), 9999);
-            add_filter('the_content', array(&$this, 'add_widget'));
-            add_action('wp_enqueue_scripts', array(&$this, 'scripts'));
+
+        public static function init() {
+            register_activation_hook(__FILE__, array(__CLASS__, 'set_options'));
+            add_action('admin_menu', array(__CLASS__, 'menu_items'));
+            add_action('init', array(__CLASS__, 'request_handler'), 9999);
+            add_filter('the_content', array(__CLASS__, 'add_widget'));
+            add_action('wp_enqueue_scripts', array(__CLASS__, 'scripts'));
         }
 
-        public function set_options() {
+        public static function set_options() {
             add_option('moshare_icon', 'moshare-button-21');
             add_option('moshare_cid', '');
             add_option('moshare_twitter_via', '');
@@ -49,7 +57,7 @@ if (!class_exists('Moshare')) {
             add_option('moshare_services', 'moshare');
         }
 
-        public function unset_options() {
+        public static function unset_options() {
             delete_option('moshare_icon');
             delete_option('moshare_cid');
             delete_option('moshare_twitter_via');
@@ -62,7 +70,7 @@ if (!class_exists('Moshare')) {
         /**
          * Adds the moShare embed code to each post/page
          */
-        public function add_widget($content) {
+        public static function add_widget($content) {
             $services = explode(',', get_option('moshare_services'));
             $html = '';
             foreach ($services as $service) {
@@ -111,7 +119,7 @@ if (!class_exists('Moshare')) {
          * - customize the widget
          * - set up the campaign ID
          */
-        public function options_form() {
+        public static function options_form() {
             $icon         = get_option('moshare_icon');
             $cid          = get_option('moshare_cid');
             $location     = get_option('moshare_location');
@@ -121,6 +129,7 @@ if (!class_exists('Moshare')) {
             $counts       = (get_option('moshare_counts') == 'true') ? 'checked' : '';
 
             $classic  = ($icon == 'moshare-button-21') ? 'checked' : "";
+            $classic  = ($icon == 'moshare-button-21' || $icon != 'moshare-button-mini-21') ? 'checked' : "";
             $mini     = ($icon == 'moshare-button-mini-21') ? 'checked' : "";
             $beginning      = ($location == 'beginning') ? 'checked' : "";
             $end   = ($location == 'end') ? 'checked' : "";
@@ -154,7 +163,7 @@ if (!class_exists('Moshare')) {
         /**
          * Updates moShare options
          */
-        public function request_handler() {
+        public static function request_handler() {
             $action = $_REQUEST['moshare_action'];
 
             if (isset($action) && $action == 'moshare_update_settings') {
@@ -188,20 +197,20 @@ if (!class_exists('Moshare')) {
         /**
          * Adds moShare to the Menu
          */
-        public function menu_items() {
+        public static function menu_items() {
             add_options_page(
                 __('moShare Options', 'moshare')
                 , __('moShare', 'moshare')
                 , manage_options
                 , basename(__FILE__)
-                , array(&$this, 'options_form')
+                , array(__CLASS__, 'options_form')
             );
         } 
 
         /**
          * Includes the moShare JavaScript once per page
          */
-        public function scripts() {
+        public static function scripts() {
             $services = explode(',', get_option('moshare_services'));
             foreach ($services as $service) {
                 if ($service == 'moshare') {
@@ -216,212 +225,214 @@ if (!class_exists('Moshare')) {
             }
         }
     }
-}
 
-abstract class Moshare_Widget {
-    protected $url;
+    abstract class Moshare_Widget {
+        protected $url;
 
-    public function __construct($url) {
-        $this->url = $url;
-    }
-
-    abstract public function get_without_count();
-    abstract public function get_with_count();
-}
-
-class Moshare_Button extends Moshare_Widget {
-    const MAX_LENGTH_DESCRIPTION = 1000;
-
-    private $cid;
-    private $icon;
-    private $title;
-    private $message;
-    private $image;
-    private $description;
-
-    public function __construct() {
-        global $post;
-        $url = get_permalink($post->ID);
-        parent::__construct($url);
-        $this->cid   = get_option('moshare_cid');
-        $this->icon  = get_option('moshare_icon');
-        $this->title = get_the_title();
-
-        if (function_exists('has_excerpt') && has_excerpt($post->ID)) {
-            $this->set_description($post->post_excerpt);
-        } else {
-            $this->set_description($post->post_content);
+        public function __construct($url) {
+            $this->url = $url;
         }
 
+        abstract public function get_without_count();
+        abstract public function get_with_count();
+    }
 
-        $this->image = "";
-        if (current_theme_supports('post-thumbnails') && has_post_thumbnail($post->ID)) {
-            $img = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'single-post-thumbnail');
-            $this->image = $img[0];
+    class Moshare_Button extends Moshare_Widget {
+        const MAX_LENGTH_DESCRIPTION = 1000;
 
-        } else if ($post->post_content != "") {
-            libxml_use_internal_errors(true); // disable libxml warnings
-            $doc = DOMDocument::loadHTML($post->post_content);
-            $images = $doc->getElementsByTagName("img");
+        private $cid;
+        private $icon;
+        private $title;
+        private $message;
+        private $image;
+        private $description;
 
-            $max_size = 0;
-            foreach ($images as $image) {
-                if ($image->getAttribute('class') != "wp-smiley") {
-                    $size = $image->getAttribute('width') * $image->getAttribute('height');
-                    if ($size > $max_size || $max_size == 0) {
-                        $max_size = $size;
-                        $this->image = $image->getAttribute('src');
+        public function __construct() {
+            global $post;
+            $url = get_permalink($post->ID);
+            parent::__construct($url);
+            $this->cid   = get_option('moshare_cid');
+            $this->icon  = get_option('moshare_icon');
+            $this->title = get_the_title();
+
+            if (function_exists('has_excerpt') && has_excerpt($post->ID)) {
+                $this->set_description($post->post_excerpt);
+            } else {
+                $this->set_description($post->post_content);
+            }
+
+
+            $this->image = "";
+            if (current_theme_supports('post-thumbnails') && has_post_thumbnail($post->ID)) {
+                $img = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'single-post-thumbnail');
+                $this->image = $img[0];
+
+            } else if ($post->post_content != "" && class_exists('DOMDocument')) {
+                libxml_use_internal_errors(true); // disable libxml warnings
+                $doc = DOMDocument::loadHTML($post->post_content);
+                $images = $doc->getElementsByTagName("img");
+
+                // grabs the biggest image based on the width & height 
+                // html attributes
+                $max_size = 0;
+                foreach ($images as $image) {
+                    if ($image->getAttribute('class') != "wp-smiley") {
+                        $size = $image->getAttribute('width') * $image->getAttribute('height');
+                        if ($size > $max_size || $max_size == 0) {
+                            $max_size = $size;
+                            $this->image = $image->getAttribute('src');
+                        }
                     }
                 }
             }
         }
 
-    }
+        private function set_description($str) {
+            $search = array('@<script[^>]*?>.*?</script>@si',
+                '@<style[^>]*?>.*?</style>@siU', 
+                '@<![\s\S]*?--[ \t\n\r]*>@'
+            ); 
+            $str = preg_replace($search, "", $str); // removes script, style and comments
+            $str = preg_replace("/\"/", "&quot;", $str); // protects double quotes
+            $str = preg_replace("/’/", "'", $str); // removes curly apostrophe
 
-    private function set_description($str) {
-        $search = array('@<script[^>]*?>.*?</script>@si',
-            '@<style[^>]*?>.*?</style>@siU', 
-            '@<![\s\S]*?--[ \t\n\r]*>@'
-        ); 
-        $str = preg_replace($search, "", $str); // removing script, style and comments
-        $str = preg_replace("/\"/", "&quot;", $str); // protecting double quotes
+            // removing extra-spaces and extra-lines
+            $str = wpautop($str); 
+            $str = preg_replace("/&nbsp;/", "", $str);
+            if (seems_utf8($str)) { 
+                $str = preg_replace('/[\p{Z}\s]{2,}/u', ' ', $str);
+            } else {
+                $str = preg_replace('/\s\s+/', ' ', $str);
+            }
 
-        // removing extra-spaces and extra-lines
-        $str = wpautop($str); 
-        $str = preg_replace("/&nbsp;/", "", $str);
-        if (seems_utf8($str)) { 
-            $str = preg_replace('/[\p{Z}\s]{2,}/u', ' ', $str);
-        } else {
-            $str = preg_replace('/\s\s+/', ' ', $str);
+            $str = strip_shortcodes($str);
+            $str = strip_tags($str);
+            $str = trim($str);
+
+            if (strlen($str) > self::MAX_LENGTH_DESCRIPTION) {
+                $str = substr($str, 0, self::MAX_LENGTH_DESCRIPTION);
+                $str .= " ...";
+            }
+
+            $this->description = $str;
         }
 
-        $str = strip_shortcodes($str);
-        $str = strip_tags($str);
-        $str = trim($str);
+        public function get_without_count() {
+            $html .= '<a href="http://www.mogreet.com/moshare/it/" class="'.$this->icon.'"';
+            $html .= ' data-message="'.$this->description.'" data-type="article"';
+            $html .= ' data-location="'.$this->url.'" data-title="'.$this->title.'"';
+            if ($this->image != '') {
+                $html .= ' data-thumbnail="'.$this->image.'"';
+            }
+            if ($this->cid != '') {
+                $html .= ' data-cid="'.$this->cid.'"';
+            }
+            $html .= '></a>';
 
-        if (strlen($str) > self::MAX_LENGTH_DESCRIPTION) {
-            $str = substr($str, 0, self::MAX_LENGTH_DESCRIPTION);
-            $str .= " ...";
+            return $html;
         }
 
-        $this->description = $str;
-    }
-
-    public function get_without_count() {
-        $html .= '<a href="http://www.mogreet.com/moshare/it/" class="'.$this->icon.'"';
-        $html .= ' data-message="'.$this->description.'" data-type="article"';
-        $html .= ' data-location="'.$this->url.'" data-title="'.$this->title.'"';
-        if ($this->image != '') {
-            $html .= ' data-thumbnail="'.$this->image.'"';
+        public function get_with_count() {
+            return $this->get_without_count();
         }
-        if ($this->cid != '') {
-            $html .= ' data-cid="'.$this->cid.'"';
+    }
+
+    class Moshare_Facebook_Widget extends Moshare_Widget {
+        private $app_id;
+
+        public function __construct() {
+            global $post;
+            $url = get_permalink($post->ID);
+            parent::__construct($url);
+            $this->app_id = get_option('moshare_fb_app_id');
         }
-        $html .= '></a>';
 
-        return $html;
+        public function get_without_count() {
+            $html = '<iframe src="//www.facebook.com/plugins/like.php?href='.$this->url;
+            $html .= '&amp;send=false&amp;layout=button_count&amp;width=50&amp;show_faces=false';
+            $html .= '&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21&amp;';
+            $html .= 'appId='.$this->app_id.'" scrolling="no" frameborder="0" style="border:none; ';
+            $html .= 'overflow:hidden; width:50px; height:21px;" allowTransparency="true"></iframe>';
+
+            return $html;
+        }
+
+        public function get_with_count() {
+            $html = '<iframe src="//www.facebook.com/plugins/like.php?href='.$this->url;
+            $html .= '&amp;send=false&amp;layout=button_count&amp;width=95&amp;show_faces=false';
+            $html .= '&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21&amp;';
+            $html .= 'appId='.$this->app_id.'" scrolling="no" frameborder="0" style="border:none; ';
+            $html .= 'overflow:hidden; width:95px; height:21px;" allowTransparency="true"></iframe>';
+
+            return $html;
+        }
     }
 
-    public function get_with_count() {
-        return $this->get_without_count();
-    }
-}
 
-class Moshare_Facebook_Widget extends Moshare_Widget {
-    private $app_id;
+    class Moshare_Twitter_Widget extends Moshare_Widget {
+        private $via;
+        private $text;
 
-    public function __construct() {
-        global $post;
-        $url = get_permalink($post->ID);
-        parent::__construct($url);
-        $this->app_id = get_option('moshare_fb_app_id');
-    }
+        public function __construct() {
+            global $post;
+            $url = get_permalink($post->ID);
+            $this->text = get_the_title();
+            parent::__construct($url);
+            $this->via = get_option('moshare_twitter_via');
+        }
 
-    public function get_without_count() {
-        $html = '<iframe src="//www.facebook.com/plugins/like.php?href='.$this->url;
-        $html .= '&amp;send=false&amp;layout=button_count&amp;width=50&amp;show_faces=false';
-        $html .= '&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21&amp;';
-        $html .= 'appId='.$this->app_id.'" scrolling="no" frameborder="0" style="border:none; ';
-        $html .= 'overflow:hidden; width:50px; height:21px;" allowTransparency="true"></iframe>';
+        public function get_without_count() {
+            $html = '<a href="https://twitter.com/share" class="twitter-share-button" ';
+            $html .= 'data-count="none" data-via="'.$this->via.'" data-url="'.$this->url.'" ';
+            $html .= 'data-text="'.$this->text.'"';
+            $html .= '>Tweet</a>';
 
-        return $html;
-    }
+            return $html;
+        }
 
-    public function get_with_count() {
-        $html = '<iframe src="//www.facebook.com/plugins/like.php?href='.$this->url;
-        $html .= '&amp;send=false&amp;layout=button_count&amp;width=95&amp;show_faces=false';
-        $html .= '&amp;action=like&amp;colorscheme=light&amp;font&amp;height=21&amp;';
-        $html .= 'appId='.$this->app_id.'" scrolling="no" frameborder="0" style="border:none; ';
-        $html .= 'overflow:hidden; width:95px; height:21px;" allowTransparency="true"></iframe>';
+        public function get_with_count() {
+            $html = '<a href="https://twitter.com/share" class="twitter-share-button" ';
+            $html .= 'data-via="'.$this->via.'" data-url="'.$this->url.'" ';
+            $html .= 'data-text="'.$this->text.'"';
+            $html .= '>Tweet</a>';
 
-        return $html;
-    }
-}
-
-
-class Moshare_Twitter_Widget extends Moshare_Widget {
-    private $via;
-    private $text;
-
-    public function __construct() {
-        global $post;
-        $url = get_permalink($post->ID);
-        $this->text = get_the_title();
-        parent::__construct($url);
-        $this->via = get_option('moshare_twitter_via');
+            return $html;
+        }
     }
 
-    public function get_without_count() {
-        $html = '<a href="https://twitter.com/share" class="twitter-share-button" ';
-        $html .= 'data-count="none" data-via="'.$this->via.'" data-url="'.$this->url.'" ';
-        $html .= 'data-text="'.$this->text.'"';
-        $html .= '>Tweet</a>';
+    class Moshare_Google_Plus_Widget extends Moshare_Widget {
+        public function __construct() {
+            global $post;
+            $url = get_permalink($post->ID);
+            parent::__construct($url);
+        }
 
-        return $html;
+        public function get_without_count() {
+            return '<g:plusone size="medium" annotation="none" href="'.$this->url.'" width="120"></g:plusone>';
+        }
+
+        public function get_with_count() {
+            return '<div style="display:inline; width: auto !important;"><g:plusone size="medium" annotation="bubble" href="'.$this->url.'" width="120"></g:plusone></div>';
+        }
     }
 
-    public function get_with_count() {
-        $html = '<a href="https://twitter.com/share" class="twitter-share-button" ';
-        $html .= 'data-via="'.$this->via.'" data-url="'.$this->url.'" ';
-        $html .= 'data-text="'.$this->text.'"';
-        $html .= '>Tweet</a>';
+    class Moshare_Linkedin_Widget extends Moshare_Widget {
+        public function __construct($url) {
+            global $post;
+            $url = get_permalink($post->ID);
+            parent::__construct($url);
+        }
 
-        return $html;
-    }
-}
+        public function get_without_count() {
+            return '<script type="IN/Share" data-url="'.$this->url.'"></script>';
+        }
 
-class Moshare_Google_Plus_Widget extends Moshare_Widget {
-    public function __construct() {
-        global $post;
-        $url = get_permalink($post->ID);
-        parent::__construct($url);
-    }
-
-    public function get_without_count() {
-        return '<g:plusone size="medium" annotation="none" href="'.$this->url.'" width="120"></g:plusone>';
-    }
-
-    public function get_with_count() {
-        return '<div style="display:inline; width: auto !important;"><g:plusone size="medium" annotation="bubble" href="'.$this->url.'" width="120"></g:plusone></div>';
+        public function get_with_count() {
+            return '<script type="IN/Share" data-url="'.$this->url.'" data-counter="right"></script>';
+        }
     }
 }
 
-class Moshare_Linkedin_Widget extends Moshare_Widget {
-    public function __construct($url) {
-        global $post;
-        $url = get_permalink($post->ID);
-        parent::__construct($url);
-    }
-
-    public function get_without_count() {
-        return '<script type="IN/Share" data-url="'.$this->url.'"></script>';
-    }
-
-    public function get_with_count() {
-        return '<script type="IN/Share" data-url="'.$this->url.'" data-counter="right"></script>';
-    }
-}
-
-$moshare = new Moshare();
+Moshare::init();
 
 ?>
