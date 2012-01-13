@@ -215,7 +215,7 @@ if (!class_exists('Moshare') &&
             $services = explode(',', get_option('moshare_services'));
             foreach ($services as $service) {
                 if ($service == 'moshare') {
-                    wp_enqueue_script('moshare', 'http://www.mogreet.com/moshare/embed/moshare.js', array(), '1.2', true);
+                    wp_enqueue_script('moshare', 'http://d2c.bandcon.mogreet.com/moshare/embed/moshare.js', array(), '1.0', true);
                 } else if ($service == 'linkedin') {
                     wp_enqueue_script('linkedin', 'http://platform.linkedin.com/in.js', array(), '1.0', true);
                 } else if ($service == 'gplus') {
