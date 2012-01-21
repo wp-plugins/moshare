@@ -25,7 +25,7 @@ You can customize the moShare widget and upgrade to a premium account to have ac
 
 = Bug - suggestions and new features? =
 
-Please visit our website: http://corp.mogreet.com
+Please visit our website: http://www.moShare.com
 
 
 == Screenshots ==
