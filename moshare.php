@@ -1,11 +1,11 @@
 <?php
 /*
     Plugin Name: moShare 
-    Plugin URI: http://corp.mogreet.com 
+    Plugin URI: http://www.moShare.com
     Description: Let users share your content via MMS using the Mogreet Messaging Platform
     Version: 1.2.2
     Author: Mogreet
-    Author URI: http://corp.mogreet.com
+    Author URI: http://www.moShare.it
     Contributors :
         Jonathan Perichon <jonathan.perichon@gmail.com>
         Tim Rizzi <tim@mogreet.com>
