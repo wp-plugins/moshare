@@ -4,14 +4,14 @@ Contributors: jperichon, trizzi
 Tags: moshare, share, sharing, mogreet, mobile, sms, mms, messaging, social
 Requires at least: 1.5
 Tested up to: 3.3
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 
-The moShare plugin enables users to share your content via MMS using the Mogreet Messaging Platform
+moShare, the mobile sharing service that enables you to send videos, pictures, music and stories to your friends' mobile phones.
 
 == Description ==
 
-The moShare plugin enables users to share your content via MMS using the Mogreet Messaging Platform.
-You can customize the moShare widget and upgrade to a premium account to have access to enhanced share related analytics.
+moShare, the mobile sharing service that enables you to send videos, pictures, music and stories to your friends' mobile phones.
+For more information, please visit our website: http://www.moShare.com
 
 == Installation ==
 
@@ -36,6 +36,12 @@ Please visit our website: http://www.moShare.com
 
 
 == Changelog ==
+
+= 1.2.3 =
+
+* Better upgrades facilities, based on the plugin version number
+* Fixes issues when upgrading from older versions
+* Updates moShare icons in the admin panel
 
 = 1.2.2 =
 
