@@ -45,7 +45,12 @@ if (!class_exists('Moshare') &&
             $current_version = get_option("moshare_version");
 
             if (version_compare($current_version, "1.2.3", "<")) {
-                self::set_options();
+                update_option('moshare_version', self::$version);
+                update_option('moshare_icon', 'moshare-button');
+                $services = get_option('moshare_services');
+                if (empty($services)) {
+                    update_option('moshare_services', 'moshare');
+                }
             }
 
             register_activation_hook(__FILE__, array(__CLASS__, 'set_options'));
