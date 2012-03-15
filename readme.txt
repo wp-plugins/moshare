@@ -1,10 +1,10 @@
 === moShare ===
 Plugin Name: moShare
-Contributors: jperichon, trizzi
+Contributors: jperichon, bguillet, trizzi
 Tags: moshare, share, sharing, mogreet, mobile, sms, mms, messaging, social
 Requires at least: 1.5
-Tested up to: 3.3
-Stable tag: 1.2.3
+Tested up to: 3.3.1
+Stable tag: 1.2.4
 
 moShare, the mobile sharing service that enables you to send videos, pictures, music and stories to your friends' mobile phones.
 
@@ -36,6 +36,11 @@ Please visit our website: http://www.moShare.com
 
 
 == Changelog ==
+
+= 1.2.4 =
+
+* Fixes the excerpts issue with the PageLines theme
+
 
 = 1.2.3 =
 
