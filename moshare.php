@@ -3,7 +3,7 @@
 	Plugin Name: moShare 
 	Plugin URI: http://www.moShare.com
 	Description: Let users share your content via MMS using the Mogreet Messaging Platform
-	Version: 1.2.6
+	Version: 1.2.7
 	Author: Mogreet
 	Author URI: http://www.moShare.com
 	Contributors :
@@ -40,7 +40,7 @@ if (!class_exists('Moshare') &&
 
 	class Moshare {
 
-		public static $version = "1.2.6";
+		public static $version = "1.2.7";
 
 		public static function init() {
 			$current_version = get_option("moshare_version");
