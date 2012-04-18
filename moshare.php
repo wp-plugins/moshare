@@ -3,7 +3,7 @@
 	Plugin Name: moShare 
 	Plugin URI: http://www.moShare.com
 	Description: Let users share your content via MMS using the Mogreet Messaging Platform
-	Version: 1.2.4
+	Version: 1.2.6
 	Author: Mogreet
 	Author URI: http://www.moShare.com
 	Contributors :
@@ -36,11 +36,11 @@ if (!class_exists('Moshare') &&
 	!class_exists('Moshare_Facebook_Widget') && 
 	!class_exists('Moshare_Linkedin_Widget') && 
 	!class_exists('Moshare_Twitter_Widget') && 
-	!class_exists('Moshare_Google_Plus_Widget')){
+	!class_exists('Moshare_Google_Plus_Widget')) {
 
 	class Moshare {
 
-		public static $version = "1.2.4";
+		public static $version = "1.2.6";
 
 		public static function init() {
 			$current_version = get_option("moshare_version");
@@ -55,7 +55,7 @@ if (!class_exists('Moshare') &&
 			}
 
 			register_activation_hook(__FILE__, array(__CLASS__, 'set_options'));
-			register_deactivation_hook(__FILE__, array(__CLASS__, 'unset_options'));
+			register_uninstall_hook(__FILE__, array(__CLASS__, 'unset_options'));
 			add_action('admin_menu', array(__CLASS__, 'menu_items'));
 			add_action('init', array(__CLASS__, 'request_handler'), 9999);
 			add_filter('the_content', array(__CLASS__, 'add_widget'));
@@ -64,14 +64,15 @@ if (!class_exists('Moshare') &&
 		}
 
 		public static function set_options() {
-			update_option('moshare_version', self::$version);
-			update_option('moshare_icon', 'moshare-button');
-			update_option('moshare_cid', '');
-			update_option('moshare_twitter_via', '');
-			update_option('moshare_fb_app_id', '');
-			update_option('moshare_counts', 'false');
-			update_option('moshare_location', 'beginning');
-			update_option('moshare_services', 'moshare');
+			add_option('moshare_version', self::$version);
+			add_option('moshare_icon', 'moshare-button');
+			add_option('moshare_cid', '');
+			add_option('moshare_twitter_via', '');
+			add_option('moshare_fb_app_id', '');
+			add_option('moshare_counts', 'false');
+			add_option('moshare_location', 'beginning');
+			add_option('moshare_services', 'moshare');
+			add_option('moshare_excerpt', 'no');
 		}
 
 		public static function unset_options() {
@@ -83,6 +84,7 @@ if (!class_exists('Moshare') &&
 			delete_option('moshare_counts');
 			delete_option('moshare_location');
 			delete_option('moshare_services');
+			delete_option('moshare_excerpt');
 		}
 
 		/**
@@ -91,10 +93,12 @@ if (!class_exists('Moshare') &&
 		public static function add_widget($content) {
 			$services = explode(',', get_option('moshare_services'));
 			$html = '';
+			global $post;
+			$url = get_permalink($post->ID);
 			foreach ($services as $service) {
 				switch ($service) {
 				case 'moshare':
-					$s = new Moshare_Button($url);
+					$s = new Moshare_Button($url, $post);
 					break;
 				case 'twitter':
 					$s = new Moshare_Twitter_Widget($url);
@@ -138,50 +142,85 @@ if (!class_exists('Moshare') &&
 		 * - set up the campaign ID
 		 */
 		public static function options_form() {
-			$icon         = get_option('moshare_icon');
-			$cid          = get_option('moshare_cid');
-			$location     = get_option('moshare_location');
-			$twitter_via  = get_option('moshare_twitter_via');
-			$fb_app_id    = get_option('moshare_fb_app_id');
-			$services     = get_option('moshare_services');
-			$counts       = (get_option('moshare_counts') == 'true') ? 'checked' : '';
+			$icon                      = get_option('moshare_icon');
+			$cid             		   = get_option('moshare_cid');
+			$location        		   = get_option('moshare_location');
+			$twitter_via     		   = get_option('moshare_twitter_via');
+			$fb_app_id       		   = get_option('moshare_fb_app_id');
+			$services        		   = get_option('moshare_services');
+			$counts          		   = (get_option('moshare_counts') == 'true') ? 'checked' : '';
+			$moshare_excerpt 		   = get_option('moshare_excerpt');
 
-			$classic  = ($icon == 'moshare-button' || $icon != 'moshare-button-mini') ? 'checked' : "";
-			$mini     = ($icon == 'moshare-button-mini') ? 'checked' : "";
-			$beginning = ($location == 'beginning') ? 'checked' : "";
-			$end      = ($location == 'end') ? 'checked' : "";
+			$classic    = ($icon == 'moshare-button' || $icon != 'moshare-button-mini' || $icon != 'moshare-ver-counter') ? 'checked' : "";
+			$mini       = ($icon == 'moshare-button-mini') ? 'checked' : "";
+			$vertical   = ($icon == 'moshare-ver-counter') ? 'checked' : "";
+			$beginning  = ($location == 'beginning') ? 'checked' : "";
+			$end        = ($location == 'end') ? 'checked' : "";
+			$yes 	    = ($moshare_excerpt == 'yes') ? 'checked' : "";
+			$no 	    = ($moshare_excerpt == 'no' || $moshare_excerpt != 'yes') ? 'checked' : "";
 
-			echo '
+			?>
 				<div class="wrap">
-				<h2>'.__('moShare Options', 'moshare').'</h2>
-				<div style="padding:10px;border:1px solid #aaa;background-color:#9fde33;text-align:center;display:none;" id="moshare_updated">Your options were successfully updated</div>
-				<form id="ak_moshare" name="ak_moshare" action="' . get_bloginfo('wpurl') .'/wp-admin/index.php">
-				<fieldset class="options">
-				<h3>Pick up your moShare style</h3>
-				<input type="radio" name="moshare_icon" value="moshare-button" '. $classic .' /> <img src="http://www.mogreet.com/moshare/embed/moshare.png"/>
-				<input type="radio" name="moshare_icon" value="moshare-button-mini"'. $mini .' /> <img src="http://www.mogreet.com/moshare/embed/moshare_chicklet.png"/>
-				<h3>Place your buttons</h3>
-				<input type="radio" name="moshare_location" value="beginning" '. $beginning .' /> Beginning of the post
-				<input type="radio" name="moshare_location" value="end"'. $end .' /> End of the post
-				<h3>Choose and order the sharing services you want</h3>
-				Example with all the services availables: facebook,moshare,linkedin,twitter,gplus<br /><br />
-				<input type="text" name="moshare_services" value="'. $services .'" size="30" /><br />
-				<h3>Advanced</h3>
-				Display counts <input type="checkbox" name="moshare_counts" value="moshare_counts" '.$counts.'><br />
-				Twitter-via user <input type="text" name="moshare_twitter_via" value="'. $twitter_via .'" /><br />
-				Facebook App Id <input type="text" name="moshare_fb_app_id" value="'. $fb_app_id .'" />
-				</fieldset>
-				<br/>
-				<input type="submit" name="submit_button" value="'.__('Update moShare Options', 'moshare').'" />
-				<input type="hidden" name="moshare_action" value="moshare_update_settings" />
-				</form></div>';
+					<h2><?php _e('moShare Options', 'moshare'); ?></h2>
+					<div style="padding:10px;border:1px solid #aaa;background-color:#9fde33;text-align:center;display:none;" id="moshare_updated">Your options were successfully updated</div>
+					<?php @readfile("http://d2c.bandcon.mogreet.com/moshare/embed/news.html"); ?>
+					<div id="poststuff" class="metabox-holder has-right-sidebar">
+						<div id="side-info-column" class="inner-sidebar">
+							<div class="meta-box-sortables">
+								<div id="about" class="postbox">
+									<h3 class="hndle" id="about-sidebar"><?php _e('About the Plugin:') ?></h3>
+									<div class="inside">
+										<p>Found a bug? Have a request? Talk to <a href="https://twitter.com/#!/moShareit">@moShare</a> on Twitter or use our <a href="http://wordpress.org/tags/moshare?forum_id=10">WordPress forum</a>!</p>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div id="post-body" class="has-sidebar">
+							<div id="post-body-content" class="has-sidebar-content">
+								<div id="normal-sortables" class="meta-box-sortables">
+									<div id="about" class="postbox">
+										<div class="inside">
+											<form id="ak_moshare" name="ak_moshare" action="<?php echo(get_bloginfo('wpurl') .'/wp-admin/index.php'); ?>" >
+											<fieldset class="options">
+											<h4>Pick up your moShare style</h4>
+											<input type="radio" name="moshare_icon" value="moshare-button" <?php echo($classic); ?>/> <img src="http://d2c.bandcon.mogreet.com/moshare/embed/moshare_new.png"/>
+											<input type="radio" name="moshare_icon" value="moshare-button-mini" <?php echo($mini); ?> /> <img src="http://d2c.bandcon.mogreet.com/moshare/embed/moshare_chicklet_new.png"/>
+											<h4>Place your buttons</h4>
+											<input type="radio" name="moshare_location" value="beginning"  <?php echo($beginning); ?> /> Beginning of the post
+											<input type="radio" name="moshare_location" value="end"  <?php echo($end); ?> /> End of the post
+											<h4>Choose and order the sharing services you want</h4>
+											Example with all the services available: facebook,moshare,linkedin,twitter,gplus<br /><br />
+											<input type="text" name="moshare_services" value="<?php _e($services); ?>" size="30" /><br />
+											<h4>Do you want the service buttons on your excerpts?</h4>
+											<input type="radio" name="moshare_excerpt" value="yes"  <?php echo($yes); ?> /> Yes
+											<input type="radio" name="moshare_excerpt" value="no"  <?php echo($no); ?> /> No
+											<h4>Advanced</h4>
+											Display counts <input type="checkbox" name="moshare_counts" value="moshare_counts"  <?php echo($counts); ?>><br />
+											Twitter-via user: <input type="text" name="moshare_twitter_via" value="<?php echo($twitter_via); ?>"/><br />
+											Facebook App Id: <input type="text" name="moshare_fb_app_id" value="<?php echo($fb_app_id); ?>" /><br />
+											</fieldset>
+											<br/>
+											<input type="submit" class="button-primary" name="submit_button" value="<?php _e('Update moShare Options', 'moshare'); ?>" />
+											<input type="hidden" name="moshare_action" value="moshare_update_settings" />
+											</form>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<?php	
 		}
 
 		/**
 		 * Updates moShare options
 		 */
 		public static function request_handler() {
-			$action = $_REQUEST['moshare_action'];
+			if(isset($_REQUEST['moshare_action'])) {
+				$action = $_REQUEST['moshare_action'];
+			}
 
 			if (isset($action) && $action == 'moshare_update_settings') {
 				update_option('moshare_icon', $_REQUEST['moshare_icon']);
@@ -189,6 +228,7 @@ if (!class_exists('Moshare') &&
 				update_option('moshare_location', $_REQUEST['moshare_location']);
 				update_option('moshare_fb_app_id', urlencode($_REQUEST['moshare_fb_app_id']));
 				update_option('moshare_twitter_via', urlencode($_REQUEST['moshare_twitter_via']));
+				update_option('moshare_excerpt', $_REQUEST['moshare_excerpt']);
 
 				//adds moShare on the left if not set
 				$services = explode(',', $_REQUEST['moshare_services']);
@@ -222,14 +262,14 @@ if (!class_exists('Moshare') &&
 				, basename(__FILE__)
 				, array(__CLASS__, 'options_form')
 			);
-		} 
+		}
 
 		/**
 		 * Includes the moShare JavaScript once per page
 		 */
 		public static function scripts() {
 			$services = explode(',', get_option('moshare_services'));
-			wp_enqueue_script('moshare', 'http://d2c.bandcon.mogreet.com/moshare/embed/moshare.js', array(), '1.1', true);
+			wp_enqueue_script('moshare', 'http://d2c.bandcon.mogreet.com/moshare/embed/moshare_wordpress.js', array(), '1.4', true);
 			foreach ($services as $service) {
 				if ($service == 'linkedin') {
 					wp_enqueue_script('linkedin', 'http://platform.linkedin.com/in.js', array(), '1.0', true);
@@ -242,21 +282,24 @@ if (!class_exists('Moshare') &&
 		}
 
 		public static function excerpt($content) {
-		   $text = get_the_content('');
-		   $excerpt_length = apply_filters('excerpt_length', 55);
-		   $excerpt_more = apply_filters('excerpt_more', ' ' . '[...]');
-		   $text = strip_shortcodes($text);
-		   $text = strip_tags($text);
-		   $words = preg_split("/[\n\r\t ]+/", $text, $excerpt_length + 1, PREG_SPLIT_NO_EMPTY);
-		   if ( count($words) > $excerpt_length ) {
-			   array_pop($words);
-			   $text = implode(' ', $words);
-			   $text = $text . $excerpt_more;
-		   } else {
-			   $text = implode(' ', $words);
+		   $excerpt_option = get_option('moshare_excerpt');	   
+		   if ($excerpt_option == 'yes') {
+			   $text = get_the_content('');
+			   $excerpt_length = apply_filters('excerpt_length', 55);
+			   $excerpt_more = apply_filters('excerpt_more', ' ' . '[...]');
+			   $text = strip_shortcodes($text);
+			   $text = strip_tags($text);
+			   $words = preg_split("/[\n\r\t ]+/", $text, $excerpt_length + 1, PREG_SPLIT_NO_EMPTY);
+			   if (count($words) > $excerpt_length) {
+				   array_pop($words);
+				   $text = implode(' ', $words);
+				   $text = $text . $excerpt_more;
+			   } else {
+				   $text = implode(' ', $words);
+			   }
+			   $text = apply_filters('the_content', $text);
+			   return $text;
 		   }
-		   $text = apply_filters('the_content', $text);
-		   return $text;
 	   }
 	}
 
@@ -281,13 +324,11 @@ if (!class_exists('Moshare') &&
 		private $image;
 		private $description;
 
-		public function __construct() {
-			global $post;
-			$url = get_permalink($post->ID);
+		public function __construct($url, $post) {
 			parent::__construct($url);
-			$this->cid   = get_option('moshare_cid');
-			$this->icon  = get_option('moshare_icon');
-			$this->title = get_the_title();
+			$this->cid   			 = get_option('moshare_cid');
+			$this->icon  		     = get_option('moshare_icon');
+			$this->title 			 = get_the_title();
 
 			if (function_exists('has_excerpt') && has_excerpt($post->ID)) {
 				$this->set_description($post->post_excerpt);
@@ -351,7 +392,7 @@ if (!class_exists('Moshare') &&
 		}
 
 		public function get_without_count() {
-			$html .= '<a href="http://www.mogreet.com/moshare/it/" class="'.$this->icon.'"';
+			$html = '<a href="http://www.mogreet.com/moshare/it/" class="'.$this->icon.'"';
 			$html .= ' data-channel="wordpress-'.Moshare::$version.'" data-message="'.$this->description.'" data-type="article"';
 			$html .= ' data-location="'.$this->url.'" data-title="'.$this->title.'"';
 			if ($this->image != '') {
@@ -366,16 +407,25 @@ if (!class_exists('Moshare') &&
 		}
 
 		public function get_with_count() {
-			return $this->get_without_count();
+			$html = '<a href="http://www.mogreet.com/moshare/it/" class="moshare-hoz-counter"';
+			$html .= ' data-channel="wordpress-'.Moshare::$version.'" data-message="'.$this->description.'" data-type="article"';
+			$html .= ' data-location="'.$this->url.'" data-title="'.$this->title.'"';
+			if ($this->image != '') {
+				$html .= ' data-thumbnail="'.$this->image.'"';
+			}
+			if ($this->cid != '') {
+				$html .= ' data-cid="'.$this->cid.'"';
+			}
+			$html .= '></a>';
+
+			return $html;
 		}
 	}
 
 	class Moshare_Facebook_Widget extends Moshare_Widget {
 		private $app_id;
 
-		public function __construct() {
-			global $post;
-			$url = get_permalink($post->ID);
+		public function __construct($url) {
 			parent::__construct($url);
 			$this->app_id = get_option('moshare_fb_app_id');
 		}
@@ -406,9 +456,7 @@ if (!class_exists('Moshare') &&
 		private $via;
 		private $text;
 
-		public function __construct() {
-			global $post;
-			$url = get_permalink($post->ID);
+		public function __construct($url) {
 			$this->text = get_the_title();
 			parent::__construct($url);
 			$this->via = get_option('moshare_twitter_via');
@@ -434,9 +482,7 @@ if (!class_exists('Moshare') &&
 	}
 
 	class Moshare_Google_Plus_Widget extends Moshare_Widget {
-		public function __construct() {
-			global $post;
-			$url = get_permalink($post->ID);
+		public function __construct($url) {
 			parent::__construct($url);
 		}
 
@@ -451,8 +497,6 @@ if (!class_exists('Moshare') &&
 
 	class Moshare_Linkedin_Widget extends Moshare_Widget {
 		public function __construct($url) {
-			global $post;
-			$url = get_permalink($post->ID);
 			parent::__construct($url);
 		}
 
