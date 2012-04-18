@@ -4,7 +4,7 @@ Contributors: jperichon, bguillet, trizzi
 Tags: moshare, share, sharing, mogreet, mobile, sms, mms, messaging, social
 Requires at least: 2.7
 Tested up to: 3.3.1
-Stable tag: 1.2.6
+Stable tag: 1.2.7
 
 moShare, the mobile sharing service that enables you to send videos, pictures, music and stories to your friends' mobile phones.
 
@@ -36,6 +36,10 @@ Please visit our website: http://www.moShare.com
 
 
 == Changelog ==
+
+= 1.2.7 =
+
+* Fixes update alert issue
 
 = 1.2.6 =
 
