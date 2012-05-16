@@ -3,7 +3,7 @@ Plugin Name: moShare
 Contributors: jperichon, bguillet, trizzi
 Tags: moshare, share, sharing, mogreet, mobile, sms, mms, messaging, social
 Requires at least: 2.7
-Tested up to: 3.3.1
+Tested up to: 3.3.2
 Stable tag: 1.2.8
 
 moShare, the mobile sharing service that enables you to send videos, pictures, music and stories to your friends' mobile phones.
