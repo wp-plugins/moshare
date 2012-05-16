@@ -1,0 +1,157 @@
+#config_container {
+    width: 350px;
+    margin: 0;
+    padding: 0;
+    font-family: Helvetica, Arial, sans-serif;
+}
+#config_container table {
+    border-collapse: collapse;
+}
+#config_container table tr {
+    margin-bottom: 2px;
+}
+#config_container table td {
+    margin: 0;
+    padding: 0;
+}
+#moshare:hover {
+    cursor: move;
+}
+#twitter:hover {
+    cursor: move;
+}
+#facebook:hover {
+    cursor: move;
+}
+#linkedin:hover {
+    cursor: move;
+}
+#gplus:hover {
+    cursor: move;
+}
+
+/*--Header Elements--*/
+#header_table {
+    font-size: 12px;
+    font-weight: bold;
+    font-family: Georgia,"Times New Roman","Bitstream Charter",Times,serif;
+    text-align: left;
+}
+.header_content_wrap {
+    height: 18px;
+    margin-bottom: 1px;
+    padding-top: 6px;
+    background: #ffffff;
+    background: -moz-linear-gradient(top,  #ffffff 0%, #ececec 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#ececec));
+    background: -webkit-linear-gradient(top,  #ffffff 0%,#ececec 100%); 
+    background: -o-linear-gradient(top,  #ffffff 0%,#ececec 100%); /
+    background: -ms-linear-gradient(top,  #ffffff 0%,#ececec 100%);
+    background: linear-gradient(top,  #ffffff 0%,#ececec 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ececec',GradientType=0 ); 
+    border-top: 1px solid #DFDFDF;
+    border-bottom:  1px solid #DFDFDF;
+}
+#config_container table td.order_header {
+    width: 50px;
+    text-align: center;
+}
+#config_container table td.button_header {
+    width: 140px;
+}
+#config_container table td.button_header .header_content_wrap {
+    padding-left: 10px;
+}
+#config_container table td.switch_header {
+    width: 60px;
+}
+#config_container table td.counter_header {
+    width: 100px;
+    text-align: left;
+}
+#config_container table td.order_header .header_content_wrap_start {
+    border-left: 1px solid #DFDFDF;
+    -webkit-border-top-left-radius: 3px;
+    -moz-border-radius-topleft: 3px;
+    border-top-left-radius: 3px;
+    padding-left: 2px;
+}
+#config_container table td.counter_header .header_content_wrap_end {
+    border-right: 1px solid #DFDFDF;
+    -webkit-border-top-right-radius: 3px;
+    -moz-border-radius-topright: 3px;
+    border-top-right-radius: 3px;
+}
+/*--Config Settings Table--*/
+.content_wrap {
+    height: 27px;
+    padding-top: 6px;
+    border-top: 1px solid #dfdfdf;
+    border-bottom:  1px solid #dfdfdf;
+}
+.content_wrap_end {
+    border-right: 1px solid #dfdfdf;
+    -webkit-border-top-right-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-topright: 3px;
+    -moz-border-radius-bottomright: 3px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+.count_wrap {
+    position: relative;
+    width: 100%;
+    height: 33px;
+    background-color: #e1e1e1;
+    -webkit-border-top-left-radius: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-topleft: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border: 1px solid #c7c5c5;
+}
+.count_text {
+    width: 10px;
+    height: 14px;
+    display: block;
+    position: absolute;
+    top: 50%;
+    margin-top: -7px;
+    right: 50%;
+    margin-right: -5px;
+    font-size: 12px;
+    font-weight: bold;
+}
+#config_container table td.brand_cell {
+    background-color: transparent;
+    width: 140px;
+    text-align: left;
+}
+#config_container table td.switch_cell {
+    background-color: transparent;
+    width: 50px;
+    text-align: center;
+}
+#config_container table td.count_cell {
+    width: 50px;
+    background-color: #FFF;
+}
+#config_container table td.counter_cell {
+    width: 60px;
+    text-align: center;
+}
+#config_container table td.counter_cell input {
+    text-align: center;
+}
+#config_container table td.brand_cell img {
+    padding-left: 10px;
+}
+#config_container table td.drag_cell {
+    width: 50px;
+    background-color: transparent;
+}
+#config_container table td.drag_cell img {
+    float: right;
+    padding-right: 9px;
+}

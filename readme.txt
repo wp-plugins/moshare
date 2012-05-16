@@ -4,7 +4,7 @@ Contributors: jperichon, bguillet, trizzi
 Tags: moshare, share, sharing, mogreet, mobile, sms, mms, messaging, social
 Requires at least: 2.7
 Tested up to: 3.3.1
-Stable tag: 1.2.7
+Stable tag: 1.2.8
 
 moShare, the mobile sharing service that enables you to send videos, pictures, music and stories to your friends' mobile phones.
 
@@ -37,9 +37,19 @@ Please visit our website: http://www.moShare.com
 
 == Changelog ==
 
+= 1.2.8 =
+
+* moShare buttons are now created via an iframe
+* New admin panel interface
+* Possibility to use a default thumbnail for the form
+* More customization for the social buttons
+* Now using WP Settings API to store the options (require at least WP 2.7)
+
+
 = 1.2.7 =
 
-* Fixes update alert issue
+* Fixes update issue
+
 
 = 1.2.6 =
 
